@@ -1,4 +1,5 @@
 import psutil
+import resend
 import tkinter as tk
 from tkinter import ttk, messagebox
 import smtplib
@@ -13,17 +14,24 @@ import argparse
 import textwrap
 import platform
 
+from dotenv import load_dotenv
+
+# Load .env only once
+load_dotenv("/home/guderian/AMALITECH_GTP/system_monitor_project/sysmon/.env")
+
+resend.api_key =  os.getenv("RESEND_API_KEY")
+
 class SystemMonitor:
     def __init__(self, mode='gui'):
         self.mode = mode
         self.running = True
         
         # Common configuration
-        self.cpu_threshold = 80
-        self.ram_threshold = 80
-        self.disk_threshold = 80
+        self.cpu_threshold = 10
+        self.ram_threshold = 10
+        self.disk_threshold = 10
         self.check_interval = 5
-        self.email_enabled = False
+        self.email_enabled = True
         self.last_alert_time = {}
         self.alert_cooldown = 300
         
@@ -204,9 +212,12 @@ class SystemMonitor:
             self.send_alert("\n".join(alerts))
 
     def send_alert(self, message):
+        print('sending alert')
         if self.mode == 'gui':
             messagebox.showwarning("Alert", message)
+            self.send_email(message)
         else:
+            self.send_email(message)
             print(f"ALERT: {message}")
 
     def show_settings(self):
@@ -268,6 +279,22 @@ class SystemMonitor:
         if self.mode == 'cli':
             sys.exit(0)
 
+    def send_email(self, message):
+
+          """Send alert email using Resend API"""
+          print("Sending alert...\n", message)
+          params: resend.Emails.SendParams = {
+            "from": "Acme <onboarding@resend.dev>",
+            "to": ["realamponsah10@yahoo.com"],
+            "subject": "🚨 System Alert: Threshold Exceeded",
+            "html": message.replace("\n", "<br>"),
+        }
+
+          try:
+              response = resend.Emails.send(params)
+              print("Alert sent:", response)
+          except Exception as e:
+              print("Failed to send alert:", str(e)) 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='System Monitor')
     parser.add_argument('--mode', choices=['gui', 'cli'], default='gui',

@@ -1,3 +1,4 @@
 virtualenv
 virtualenv/*
 .env
+.pytest_cache

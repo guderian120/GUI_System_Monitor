@@ -284,7 +284,7 @@ class SystemMonitor:
           """Send alert email using Resend API"""
           print("Sending alert...\n", message)
           params: resend.Emails.SendParams = {
-            "from": "Acme <onboarding@resend.dev>",
+            "from": "SYSMON <onboarding@resend.dev>",
             "to": ["realamponsah10@yahoo.com"],
             "subject": "🚨 System Alert: Threshold Exceeded",
             "html": message.replace("\n", "<br>"),
